@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    table {
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    td {
+      width: 80px;
+      height: 80px;
+      border: 2px solid #333;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    td:hover {
+      background-color: #eee;
+    }
+
+    td:empty:before {
+      content: "";
+    }
+  </style>
+  <title>Tic Tac Toe</title>
+</head>
+<body>
+  <div><h1>Tic Tac Toe</h1></div>
+
+  <% flash.each do |type, message| %>
+    <div class="<%= type %>"><%= message %></div>
+  <% end %>
+
+  <table>
+    <% @board.each_with_index do |row, i| %>
+      <tr>
+        <% row.each_with_index do |cell, j| %>
+          <td>
+            <% if cell.nil? %>
+              <%= link_to '', end_turn_path(row: i, col: j), method: :post %>
+            <% else %>
+              <%= cell %>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
+
+  <% if @winner %>
+    <p>Game Over! Winner: <%= @winner %></p>
+    <%= link_to 'Reset Game', reset_path %>
+  <% end %>
+</body>
+</html>
