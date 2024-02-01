@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
@@ -40,13 +39,31 @@
 </head>
 <body>
   <div><h1>Tic Tac Toe</h1></div>
+  <div>
+    <% if session[:current_user] %>
+      <div><h1><%= session[:current_player] %>(You) :- <%= session[:current_user] %></h1></div>
+      <div><h1><%= session[:opponent_player] %> :- <%= session[:opponent] %></h1></div>
+    <% else %>
+      <%= form_for @game do |f| %>
+        <% if @game.id.nil? %>
+          <%= f.label :x_player_name, 'Name:' %>
+          <%= f.text_field :x_player_name, placeholder: 'Player X' %>
+        <% else %>
+          <%= f.label :o_player_name, 'Name:' %>
+          <%= f.text_field :o_player_name, placeholder: 'Player O' %>
+        <% end %>
+
+        <%= f.submit 'Submit' %>
+      <% end %>
+    <% end %>
+  </div>
 
   <% flash.each do |type, message| %>
     <div class="<%= type %>"><%= message %></div>
   <% end %>
 
   <table>
-    <% @board.each_with_index do |row, i| %>
+    <% session[:game]['board'].each_with_index do |row, i| %>
       <tr>
         <% row.each_with_index do |cell, j| %>
           <td>
@@ -60,9 +77,11 @@
       </tr>
     <% end %>
   </table>
-
+  <%# unless session[:game]['id'].nil? %>
+    <%= link_to 'reset', reset_path %>
+  <%# end %>
   <% if @winner %>
-    <p>Game Over! Winner: <%= @winner %></p>
+    <p>Game Over! Winner: <%= session[:game]['winner'] %></p>
     <%= link_to 'Reset Game', reset_path %>
   <% end %>
 </body>
