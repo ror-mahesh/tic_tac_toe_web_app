@@ -1,6 +1,7 @@
 class GamesController < ApplicationController
   before_action :initialize_game, only: [:index]
   after_action :set_current_user, only: [:create, :update]
+  after_action :broadcast_game_state, only: [:create, :update, :reset]
 
   def index
     @board = session[:board]
@@ -50,11 +51,21 @@ class GamesController < ApplicationController
   def find_game
     @game ||= Game.find(session[:game]['id'])
   rescue
-    game = Game.last
-    @game ||= game&.panding? ? game : Game.new(board: board_hash)
+    game = Game.find_by(status: 'panding')
+    @game ||= game || Game.new(board: board_hash)
   end
 
   def board_hash
     Array.new(3) { Array.new(3, nil) }
+  end
+
+  def broadcast_game_state
+    ActionCable.server.broadcast('game_channel', {
+      current_player: session[:current_player],
+      opponent_player: session[:opponent_player],
+      opponent: session[:opponent],
+      current_player: session[:current_player],
+      game: session[:game]
+    })
   end
 end
