@@ -44,14 +44,14 @@
   <% flash.each do |type, message| %>
     <div class="<%= type %>"><%= message %></div>
   <% end %>
-
+<% if  @player %>
   <table>
     <% @board.each_with_index do |row, i| %>
       <tr>
         <% row.each_with_index do |cell, j| %>
           <td>
-            <% if cell.nil? %>
-              <%= link_to '', end_turn_path(row: i, col: j), method: :post %>
+           <% if !cell %> 
+              <%= button_to '',end_turn_path(row: i, col: j), :method => :post %>
             <% else %>
               <%= cell %>
             <% end %>
@@ -60,10 +60,18 @@
       </tr>
     <% end %>
   </table>
+  <p> current : <%= @current_player %> </p> 
+  <% else %>
+    <form action="<%= games_path %>" method="post">
+      <label>Enter your name</label>
+      <input type="text" name="player_name" />
+      <input type="submit" value="Submit" />
+    </form>
+  <% end %>
 
   <% if @winner %>
     <p>Game Over! Winner: <%= @winner %></p>
-    <%= link_to 'Reset Game', reset_path %>
   <% end %>
+  <%= link_to 'Reset Game', reset_path %>
 </body>
 </html>
