@@ -9,7 +9,7 @@ class GamesController < ApplicationController
   end
 
   def create
-    Game.create(x_player_name: params[:game][:x_player_name], board: board_hash)
+    Game.create(x_player_name: params[:game][:x_player_name], board: board_hash, turn: 'X')
     redirect_to root_path
   end
 
@@ -23,6 +23,19 @@ class GamesController < ApplicationController
     session[:current_player] = nil
     session[:current_user] = nil
     session[:game] = nil
+    redirect_to root_path
+  end
+
+
+  def end_turn
+    row = params[:row].to_i 
+    col = params[:col].to_i
+    if valid_move?(row, col)
+      make_move(row, col)
+    else
+      flash[:error] = 'Invalid move. Please try again.'
+    end
+
     redirect_to root_path
   end
 
@@ -59,12 +72,35 @@ class GamesController < ApplicationController
     Array.new(3) { Array.new(3, nil) }
   end
 
+  def valid_move?(row, col)
+    find_game.board[row][col].nil?
+  end
+
+  def make_move(row, col)
+    find_game.board[row][col] = find_game.turn
+    find_game.turn = find_game.turn == 'X' ? 'O' : 'X'
+    check_winner(find_game.board.flatten)
+    find_game.save
+  end
+
+  def check_winner(board)
+    win_array = [[0,1,2], [1,4,7], [2,5,8], [0,3,6], [3,4,5], [6,7,8], [0,4,8], [2,4,6]]
+    win = win_array.any? do |arr| 
+            board[arr[0]] == board[arr[1]] && board[arr[1]] == board[arr[2]] && board[arr[0]] != nil
+          end
+    if (win)
+      find_game.update(status: 'completed', result: session[:current_player]);
+    elsif board.compact.size == 9
+      find_game.update(status: 'completed', result: 'DRAW');
+    end
+  end
+
   def broadcast_game_state
     ActionCable.server.broadcast('game_channel', {
       current_player: session[:current_player],
       opponent_player: session[:opponent_player],
       opponent: session[:opponent],
-      current_player: session[:current_player],
+      current_user: session[:current_user],
       game: session[:game]
     })
   end

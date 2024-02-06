@@ -6,6 +6,7 @@ class CreateGames < ActiveRecord::Migration[7.1]
       t.integer :status, default: 0
       t.json :board, default: {}
       t.string :result
+      t.string :turn
 
       t.timestamps
     end

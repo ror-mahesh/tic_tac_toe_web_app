@@ -24,6 +24,11 @@
       text-align: center;
       font-size: 24px;
       font-weight: bold;
+    }
+
+    button {
+      width: 80px;
+      height: 80px;
       cursor: pointer;
     }
 
@@ -63,14 +68,14 @@
   <% end %>
 
   <div id='test'></div>
-
-  <table>
+  <% player = session[:game]['turn'] == 'X' ? 'Player X' : 'Player O' %>
+  <table id="<%= "#{session[:current_player]}_#{session[:game]['id']}" %>">
     <% session[:game]['board'].each_with_index do |row, i| %>
       <tr>
         <% row.each_with_index do |cell, j| %>
-          <td>
-            <% if cell.nil? %>
-              <%= link_to '', end_turn_path(row: i, col: j), method: :post %>
+          <td id="<%= "#{session[:current_player]}_#{session[:game]['id']}_#{i}_#{j}" %>">
+            <% if !cell && session[:current_player] == player && session[:opponent] %> 
+              <%= button_to '',end_turn_path(row: i, col: j), :method => :post %>
             <% else %>
               <%= cell %>
             <% end %>
@@ -79,12 +84,11 @@
       </tr>
     <% end %>
   </table>
-  <%# unless session[:game]['id'].nil? %>
+  <% if session[:game]['result'] %>
+    <p>Game Over! Winner: <%= session[:game]['result'] %></p>
+  <% end %>
+  <% unless session[:game]['id'].nil? %>
     <%= link_to 'reset', reset_path %>
-  <%# end %>
-  <% if @winner %>
-    <p>Game Over! Winner: <%= session[:game]['winner'] %></p>
-    <%= link_to 'Reset Game', reset_path %>
   <% end %>
 </body>
 </html>
