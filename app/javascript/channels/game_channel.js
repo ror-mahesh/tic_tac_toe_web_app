@@ -1,29 +1,20 @@
-// import consumer from "channels/consumer"
+import consumer from "channels/consumer"
 
-// consumer.subscriptions.create("GameChannel", {
-//   connected() {
-//     // Called when the subscription is ready for use on the server
-//   },
+consumer.subscriptions.create("GameChannel", {
+  connected() {
+   console.log("Connected to Game channel.")
 
-//   disconnected() {
-//     // Called when the subscription has been terminated by the server
-//   },
+    // Called when the subscription is ready for use on the server
+  },
 
-//   received(data) {
-//     // Called when there's incoming data on the websocket for this channel
-//   }
-// });
+  disconnected() {
+    // Called when the subscription has been terminated by the server
+  },
 
-// app/assets/javascripts/channels/game_channel.js
-var App = App || {};
-
-document.addEventListener('DOMContentLoaded', () => {
-  App.gameChannel = App.cable.subscriptions.create('GameChannel', {
-    received: function(data) {
-      // Handle received data and update the UI
-      $('#test').innerText = 123
-      console.log(data);
-      // Implement logic to update the game UI based on the received data
-    }
-  });
+  received(data) {
+   var test = document.getElementById(`${data['game']['id']}_${data['col']}_${data['row']}`)
+   if(test){
+    location.reload()
+   }
+  },
 });

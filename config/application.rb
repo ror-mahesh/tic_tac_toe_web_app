@@ -12,7 +12,6 @@ module TicTacToeWebApp
     config.load_defaults 7.1
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w(assets tasks))
     config.action_cable.mount_path = '/cable'
@@ -23,5 +22,6 @@ module TicTacToeWebApp
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.factory_bot.definition_file_paths = ["spec/factories"]
   end
 end

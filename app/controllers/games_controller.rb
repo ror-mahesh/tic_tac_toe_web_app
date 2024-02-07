@@ -1,8 +1,8 @@
 class GamesController < ApplicationController
   before_action :initialize_game, only: [:index]
   after_action :set_current_user, only: [:create, :update]
-  after_action :broadcast_game_state, only: [:create, :update, :reset]
-
+  after_action :broadcast_game_state
+  
   def index
     @board = session[:board]
     @winner = session[:winner]
@@ -44,12 +44,12 @@ class GamesController < ApplicationController
   def initialize_game
     session[:game] = find_game
     if find_game.x_player_name.nil? || find_game.x_player_name == session[:current_user]
-      session[:current_player] = 'Player X'
-      session[:opponent_player] = 'Player O'
+      session[:current_player] = 'Player_x'
+      session[:opponent_player] = 'Player_o'
       session[:opponent] = find_game.o_player_name
     elsif find_game.o_player_name.nil? || find_game.o_player_name == session[:current_user]
-      session[:current_player] = 'Player O'
-      session[:opponent_player] = 'Player X'
+      session[:current_player] = 'Player_o'
+      session[:opponent_player] = 'Player_x'
       session[:opponent] = find_game.x_player_name
     end
   end
@@ -57,8 +57,8 @@ class GamesController < ApplicationController
   def set_current_user
     session[:current_user] = params[:action] == 'create' ? find_game.x_player_name : find_game.o_player_name
     session[:opponent] = params[:action] == 'create' ? find_game.o_player_name : find_game.x_player_name
-    session[:current_player] = params[:action] == 'create' ? 'Player X' : 'Player O'
-    session[:opponent_player] = params[:action] == 'create' ? 'Player O' : 'Player X'
+    session[:current_player] = params[:action] == 'create' ? 'Player_x' : 'Player_o'
+    session[:opponent_player] = params[:action] == 'create' ? 'Player_o' : 'Player_x'
   end
 
   def find_game
@@ -89,7 +89,7 @@ class GamesController < ApplicationController
             board[arr[0]] == board[arr[1]] && board[arr[1]] == board[arr[2]] && board[arr[0]] != nil
           end
     if (win)
-      find_game.update(status: 'completed', result: session[:current_player]);
+      find_game.update(status: 'completed', result: session[:current_user]);
     elsif board.compact.size == 9
       find_game.update(status: 'completed', result: 'DRAW');
     end
@@ -101,7 +101,9 @@ class GamesController < ApplicationController
       opponent_player: session[:opponent_player],
       opponent: session[:opponent],
       current_user: session[:current_user],
-      game: session[:game]
+      game: session[:game],
+      row: params[:row],
+      col: params[:col]
     })
   end
 end

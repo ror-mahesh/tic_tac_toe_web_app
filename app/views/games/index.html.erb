@@ -43,6 +43,7 @@
   <title>Tic Tac Toe</title>
 </head>
 <body>
+
   <div><h1>Tic Tac Toe</h1></div>
   <div>
     <% if session[:current_user] %>
@@ -67,18 +68,19 @@
     <div class="<%= type %>"><%= message %></div>
   <% end %>
 
-  <div id='test'></div>
-  <% player = session[:game]['turn'] == 'X' ? 'Player X' : 'Player O' %>
-  <table id="<%= "#{session[:current_player]}_#{session[:game]['id']}" %>">
+  <% player = session[:game]['turn'] == 'X' ? 'Player_x' : 'Player_o' %>
+  <table id="game_<%= session[:game]['id'] %>">
     <% session[:game]['board'].each_with_index do |row, i| %>
       <tr>
         <% row.each_with_index do |cell, j| %>
-          <td id="<%= "#{session[:current_player]}_#{session[:game]['id']}_#{i}_#{j}" %>">
-            <% if !cell && session[:current_player] == player && session[:opponent] %> 
-              <%= button_to '',end_turn_path(row: i, col: j), :method => :post %>
-            <% else %>
-              <%= cell %>
-            <% end %>
+          <td id="<%= "#{session[:game]['id']}_#{i}_#{j}" %>">
+            <div class="cell" data-row="<%= i %>" data-col="<%= j %>">
+              <% if !cell && session[:current_player] == player && session[:opponent] %> 
+                <%= button_to '',end_turn_path(row: i, col: j), :method => :post %>
+              <% else %>
+                <%= cell %>
+              <% end %>
+            </div>
           </td>
         <% end %>
       </tr>
@@ -92,3 +94,17 @@
   <% end %>
 </body>
 </html>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.cell').forEach(function(cell) {
+      cell.addEventListener('click', function() {
+        makeMove(this.dataset.row, this.dataset.col);
+      });
+    });
+
+    function makeMove(row, col) {
+      App.tic_tac_toe.makeMove(<%= session[:game]['id'] %>, <%= session[:current_player] %>, row, col);
+    }
+  });
+</script>
